@@ -4,8 +4,11 @@ import subprocess
 from typing import Callable
 
 from nurin.helpers import jittered_sleep
-from nurin.models import Config, State
-from nurin.network import ping
+from nurin.models.state import State
+from nurin.models.config import Config
+from nurin.models.target import PingTarget, URLTarget
+from nurin.checks.ping import ping
+from nurin.checks.url import check_url
 
 log = logging.getLogger(__name__)
 
@@ -51,19 +54,25 @@ def run_check_cycle(config: Config, state: State) -> bool:
         else config.regular_check_interval
     )
     jittered_sleep(check_interval, config.sleep_jitter)
-    result = ping(random.choice(config.ping_targets))
+    target = random.choice(config.targets)
+    if isinstance(target, PingTarget):
+        result = ping(target)
+    elif isinstance(target, URLTarget):
+        result = check_url(target)
+    else:
+        raise NotImplementedError(f"Unknown target type: {target}")
     if not result.success:
         state.down_check_counter += 1
         log.info(
-            "Ping failed to %s, counter %d",
-            result.target,
+            "Target failed: %s, counter %d",
+            target,
             state.down_check_counter,
         )
     else:
         if state.down_check_counter:
             log.info(
-                "Ping succeeded to %s; counter had been %d",
-                result.target,
+                "Success: %s; counter had been %d",
+                target,
                 state.down_check_counter,
             )
         state.down_check_counter = 0

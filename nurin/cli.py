@@ -4,7 +4,8 @@ import logging
 
 import click
 
-from nurin.models import Config
+from nurin.models.config import Config
+from nurin.models.target import PingTarget, URLTarget
 from nurin.run import run
 from nurin.__about__ import __version__
 
@@ -19,11 +20,21 @@ log = logging.getLogger(__name__)
     "--ping-target",
     "ping_targets",
     multiple=True,
-    default=["8.8.8.8"],
+    default=[],
     help="Ping target; can be specified multiple times, and a random one is chosen each time.",
     metavar="IP/HOST",
 )
 @click.option(
+    "-u",
+    "--url-target",
+    "url_targets",
+    multiple=True,
+    default=[],
+    help="URL target; can be specified multiple times, and a random one is chosen each time.",
+    metavar="URL",
+)
+@click.option(
+    "-rci",
     "--regular-check-interval",
     default=30,
     type=float,
@@ -31,6 +42,7 @@ log = logging.getLogger(__name__)
     metavar="SECONDS",
 )
 @click.option(
+    "-dci",
     "--down-check-interval",
     default=5,
     type=float,
@@ -89,6 +101,7 @@ def cli(
     down_check_interval: int,
     down_count: int,
     ping_targets: tuple[str, ...],
+    url_targets: tuple[str, ...],
     regular_check_interval: int,
     reset_after_down_action: bool,
     sleep_jitter: float,
@@ -99,11 +112,17 @@ def cli(
         level=(logging.DEBUG if debug else logging.INFO),
         format="%(asctime)s %(levelname)s: %(message)s",
     )
+    targets = [
+        *(PingTarget(host=host) for host in ping_targets),
+        *(URLTarget(url=url) for url in url_targets),
+    ]
+    if not targets:
+        raise click.UsageError("No targets specified.")
     config = Config(
         down_actions=list(down_actions),
         down_check_interval=down_check_interval,
         down_count=down_count,
-        ping_targets=list(ping_targets),
+        targets=targets,
         regular_check_interval=regular_check_interval,
         reset_after_down_action=reset_after_down_action,
         sleep_jitter=sleep_jitter,
