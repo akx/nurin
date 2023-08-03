@@ -6,15 +6,12 @@ import click
 
 from nurin.models.config import Config
 from nurin.models.target import PingTarget, URLTarget
-from nurin.run import run
 from nurin.__about__ import __version__
 
 log = logging.getLogger(__name__)
 
 
-@click.command(
-    help="Network Up/Down monitor.\nTaasko se netti on nurin? Nurin se on!",
-)
+@click.command(help="start tracking connectivity")
 @click.option(
     "-p",
     "--ping-target",
@@ -91,12 +88,10 @@ log = logging.getLogger(__name__)
     ),
 )
 @click.option(
-    "--max-cycles", default=None, type=int, help="Maximum number of cycles to run."
+    "--max-cycles", default=None, type=int, help="Maximum number of cycles to run.",
 )
-@click.option("--debug", is_flag=True, help="Enable debug logging")
-def cli(
+def run(
     *,
-    debug: bool,
     down_actions: tuple[str, ...],
     down_check_interval: int,
     down_count: int,
@@ -107,11 +102,7 @@ def cli(
     sleep_jitter: float,
     up_actions: tuple[str, ...],
     max_cycles: int | None,
-) -> None:
-    logging.basicConfig(
-        level=(logging.DEBUG if debug else logging.INFO),
-        format="%(asctime)s %(levelname)s: %(message)s",
-    )
+):
     targets = [
         *(PingTarget(host=host) for host in ping_targets),
         *(URLTarget(url=url) for url in url_targets),
@@ -130,4 +121,6 @@ def cli(
         max_cycles=max_cycles,
     )
     logging.info("Hello, this is nurin %s. My configuration is %s", __version__, config)
+
+    from nurin.run import run
     run(config)

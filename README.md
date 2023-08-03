@@ -13,7 +13,7 @@ pip install nurin
 
 ## Usage
 
-TODO. Please see `nurin --help` for now...
+TODO. Please see `nurin run --help` for now...
 
 ## License
 
