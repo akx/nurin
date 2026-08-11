@@ -88,7 +88,10 @@ log = logging.getLogger(__name__)
     ),
 )
 @click.option(
-    "--max-cycles", default=None, type=int, help="Maximum number of cycles to run.",
+    "--max-cycles",
+    default=None,
+    type=int,
+    help="Maximum number of cycles to run.",
 )
 def run(
     *,
@@ -102,7 +105,7 @@ def run(
     sleep_jitter: float,
     up_actions: tuple[str, ...],
     max_cycles: int | None,
-):
+) -> None:
     targets = [
         *(PingTarget(host=host) for host in ping_targets),
         *(URLTarget(url=url) for url in url_targets),
@@ -123,4 +126,5 @@ def run(
     logging.info("Hello, this is nurin %s. My configuration is %s", __version__, config)
 
     from nurin.run import run
+
     run(config)
