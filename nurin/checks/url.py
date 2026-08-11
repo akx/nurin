@@ -2,9 +2,9 @@ import logging
 import os
 import shutil
 
+from nurin.helpers.run_command import run_command
 from nurin.models.result import CheckResult
 from nurin.models.target import URLTarget
-from nurin.helpers.run_command import run_command
 
 wget = shutil.which("wget")
 curl = shutil.which("curl")

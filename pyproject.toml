@@ -63,7 +63,7 @@ exclude_lines = [
 line-length = 120
 
 [tool.ruff.lint]
-select = [
+extend-select = [
     "ANN",
     "B",
     "C",

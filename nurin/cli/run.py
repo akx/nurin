@@ -4,9 +4,9 @@ import logging
 
 import click
 
+from nurin.__about__ import __version__
 from nurin.models.config import Config
 from nurin.models.target import PingTarget, URLTarget
-from nurin.__about__ import __version__
 
 log = logging.getLogger(__name__)
 
@@ -123,7 +123,7 @@ def run(
         up_actions=list(up_actions),
         max_cycles=max_cycles,
     )
-    logging.info("Hello, this is nurin %s. My configuration is %s", __version__, config)
+    log.info("Hello, this is nurin %s. My configuration is %s", __version__, config)
 
     from nurin.run import run
 

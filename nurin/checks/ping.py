@@ -1,9 +1,9 @@
 import logging
 import sys
 
+from nurin.helpers.run_command import run_command
 from nurin.models.result import CheckResult
 from nurin.models.target import PingTarget
-from nurin.helpers.run_command import run_command
 
 log = logging.getLogger(__name__)
 
