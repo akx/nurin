@@ -27,6 +27,7 @@ def run_command(
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             timeout=timeout,
+            check=False,
         )
     except subprocess.TimeoutExpired as te:
         t1 = time.time()

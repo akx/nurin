@@ -18,7 +18,7 @@ def test_ping(runner: CliRunner, run_spy) -> None:
 
 
 def test_http(runner: CliRunner, http_server, run_spy) -> None:
-    hs, port = http_server
+    _hs, port = http_server
     result = runner.invoke(
         cli,
         [

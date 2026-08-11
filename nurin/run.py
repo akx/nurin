@@ -1,14 +1,14 @@
 import logging
 import random
 import subprocess
-from typing import Callable
+from collections.abc import Callable
 
-from nurin.helpers import jittered_sleep
-from nurin.models.state import State
-from nurin.models.config import Config
-from nurin.models.target import PingTarget, URLTarget
 from nurin.checks.ping import ping
 from nurin.checks.url import check_url
+from nurin.helpers import jittered_sleep
+from nurin.models.config import Config
+from nurin.models.state import State
+from nurin.models.target import PingTarget, URLTarget
 
 log = logging.getLogger(__name__)
 
