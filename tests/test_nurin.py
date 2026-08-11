@@ -7,6 +7,7 @@ def test_ping(runner: CliRunner, run_spy) -> None:
     result = runner.invoke(
         cli,
         [
+            "run",
             "--max-cycles=1",
             "--regular-check-interval=0",
             "--ping-target=localhost",
@@ -22,6 +23,7 @@ def test_http(runner: CliRunner, http_server, run_spy) -> None:
     result = runner.invoke(
         cli,
         [
+            "run",
             "--max-cycles=1",
             "--regular-check-interval=0",
             f"--url-target=http://localhost:{port}",
