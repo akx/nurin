@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "nurin"
 description = 'Taasko se netti on nurin'
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 license = "MIT"
 keywords = []
 authors = [
@@ -15,11 +15,11 @@ authors = [
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -39,17 +39,11 @@ Source = "https://github.com/akx/nurin"
 [tool.hatch.version]
 path = "nurin/__about__.py"
 
-[tool.hatch.envs.default]
-dependencies = [
-    "pytest",
-    "pytest-cov",
+[dependency-groups]
+dev = [
+    "pytest>=7.4.4",
+    "pytest-cov>=4.1.0",
 ]
-[tool.hatch.envs.default.scripts]
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=nurin --cov=tests {args}"
-no-cov = "cov --no-cov {args}"
-
-[[tool.hatch.envs.test.matrix]]
-python = ["37", "38", "39", "310", "311"]
 
 [tool.coverage.run]
 branch = true
@@ -66,6 +60,9 @@ exclude_lines = [
 ]
 
 [tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
 select = [
     "ANN",
     "B",
@@ -79,5 +76,5 @@ ignore = [
     "ANN101",
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*" = ["ANN"]

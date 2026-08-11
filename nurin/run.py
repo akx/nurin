@@ -48,11 +48,7 @@ def run(
 
 
 def run_check_cycle(config: Config, state: State) -> bool:
-    check_interval = (
-        config.down_check_interval
-        if state.down_check_counter > 0
-        else config.regular_check_interval
-    )
+    check_interval = config.down_check_interval if state.down_check_counter > 0 else config.regular_check_interval
     jittered_sleep(check_interval, config.sleep_jitter)
     target = random.choice(config.targets)
     if isinstance(target, PingTarget):
