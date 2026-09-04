@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+from pathlib import Path
 
 from nurin.models.target import Target
 
@@ -15,6 +16,7 @@ class Config:
     )
     down_check_interval: int = 5
     down_count: int = 3
+    event_log: Path | None = None
     max_cycles: int | None = None
     targets: list[Target] = dataclasses.field(default_factory=list)
     regular_check_interval: int = 30
