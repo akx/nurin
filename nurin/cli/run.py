@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 import click
 
@@ -93,11 +94,20 @@ log = logging.getLogger(__name__)
     type=int,
     help="Maximum number of cycles to run.",
 )
+@click.option(
+    "-e",
+    "--event-log",
+    default=None,
+    type=click.Path(dir_okay=False, writable=True, path_type=Path),
+    help="Append connectivity events (down/up/start/stop) to this file as JSONL.",
+    metavar="FILE",
+)
 def run(
     *,
     down_actions: tuple[str, ...],
     down_check_interval: int,
     down_count: int,
+    event_log: Path | None,
     ping_targets: tuple[str, ...],
     url_targets: tuple[str, ...],
     regular_check_interval: int,
@@ -116,6 +126,7 @@ def run(
         down_actions=list(down_actions),
         down_check_interval=down_check_interval,
         down_count=down_count,
+        event_log=event_log,
         targets=targets,
         regular_check_interval=regular_check_interval,
         reset_after_down_action=reset_after_down_action,
