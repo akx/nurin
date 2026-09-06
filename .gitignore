@@ -1,5 +1,8 @@
 *.py[cod]
 /*.jsonl
+/*.pdf
 /.coverage*
 /journal.txt
 dist
+justfile.local
+uv.lock

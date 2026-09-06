@@ -95,11 +95,45 @@ log = logging.getLogger(__name__)
     help="Maximum number of cycles to run.",
 )
 @click.option(
+    "-s",
+    "--speed-test-url",
+    "speed_test_urls",
+    multiple=True,
+    default=[],
+    help=(
+        "Periodically download this URL and log the download speed; can be specified multiple times, "
+        "and the URLs are used in shuffled order. Speed testing is off unless at least one is given."
+    ),
+    metavar="URL",
+)
+@click.option(
+    "-sti",
+    "--speed-test-interval",
+    default=300,
+    type=float,
+    help="How often to run a speed test (seconds); a floor, since tests only happen between checks.",
+    metavar="SECONDS",
+)
+@click.option(
+    "--speed-test-timeout",
+    default=30,
+    type=float,
+    help="Give up on (or cut short) a speed test download after this long (seconds).",
+    metavar="SECONDS",
+)
+@click.option(
+    "--speed-test-max-bytes",
+    default=10 * 1024 * 1024,
+    type=int,
+    help="Stop a speed test download after this many bytes (0 for no limit).",
+    metavar="BYTES",
+)
+@click.option(
     "-e",
     "--event-log",
     default=None,
     type=click.Path(dir_okay=False, writable=True, path_type=Path),
-    help="Append connectivity events (down/up/start/stop) to this file as JSONL.",
+    help="Append connectivity events (down/up/start/stop, and speed samples) to this file as JSONL.",
     metavar="FILE",
 )
 def run(
@@ -113,6 +147,10 @@ def run(
     regular_check_interval: int,
     reset_after_down_action: bool,
     sleep_jitter: float,
+    speed_test_urls: tuple[str, ...],
+    speed_test_interval: float,
+    speed_test_timeout: float,
+    speed_test_max_bytes: int,
     up_actions: tuple[str, ...],
     max_cycles: int | None,
 ) -> None:
@@ -131,6 +169,10 @@ def run(
         regular_check_interval=regular_check_interval,
         reset_after_down_action=reset_after_down_action,
         sleep_jitter=sleep_jitter,
+        speed_test_urls=list(speed_test_urls),
+        speed_test_interval=speed_test_interval,
+        speed_test_timeout=speed_test_timeout,
+        speed_test_max_bytes=speed_test_max_bytes,
         up_actions=list(up_actions),
         max_cycles=max_cycles,
     )
