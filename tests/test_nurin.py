@@ -351,7 +351,7 @@ def test_measure_download_speed_failure(http_server) -> None:
     result = measure_download_speed(f"http://localhost:{port}/nope.bin", timeout=10)
     assert not result.success
     assert result.bytes == 0
-    assert "HTTPError" in result.error
+    assert result.error and "HTTPError" in result.error
 
 
 def test_speed_test_cli(runner: CliRunner, http_server, tmp_path: Path) -> None:
