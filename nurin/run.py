@@ -4,8 +4,16 @@ import subprocess
 from collections.abc import Callable
 
 from nurin.checks.ping import ping
+from nurin.checks.speed import measure_download_speed
 from nurin.checks.url import check_url
-from nurin.event_log import down_event, start_event, stop_event, up_event, write_event
+from nurin.event_log import (
+    down_event,
+    speed_event,
+    start_event,
+    stop_event,
+    up_event,
+    write_event,
+)
 from nurin.helpers import jittered_sleep, now_epoch
 from nurin.models.config import Config
 from nurin.models.outage import Outage
@@ -48,6 +56,7 @@ def run(
                 if config.reset_after_down_action:
                     state.down_check_counter = 0
                 state.up_actions_primed = True
+            maybe_run_speed_test(config, state)
     except KeyboardInterrupt:
         log.info("Interrupted by user, exiting")
         stop_reason = "interrupted"
@@ -108,6 +117,43 @@ def run_check_cycle(config: Config, state: State) -> bool:
             )
         state.down_check_counter = 0
     return result.success
+
+
+def next_speed_test_url(config: Config, state: State) -> str:
+    """
+    Walk the speed test URLs in shuffled order, reshuffling once they run out,
+    so every URL gets used equally often without a fixed rotation.
+    """
+    if not state.speed_test_pool:
+        state.speed_test_pool = random.sample(config.speed_test_urls, len(config.speed_test_urls))
+    return state.speed_test_pool.pop()
+
+
+def maybe_run_speed_test(config: Config, state: State) -> None:
+    """
+    Take a download-speed sample if one is due.
+
+    Only ever called between checks, so the configured interval is a floor: a
+    sample lands on the first check cycle after it comes due.
+    """
+    if not config.speed_test_urls:
+        return
+    now = now_epoch()
+    if state.next_speed_test_epoch is not None and now < state.next_speed_test_epoch:
+        return
+    if state.outage:
+        # Nothing to measure over a connection we just saw fail, and the attempt
+        # would only block for the timeout; stay due and retry next cycle.
+        return
+    result = measure_download_speed(
+        next_speed_test_url(config, state),
+        timeout=config.speed_test_timeout,
+        max_bytes=config.speed_test_max_bytes,
+    )
+    # Scheduled from the end of the download, so a slow one does not immediately
+    # come due again.
+    state.next_speed_test_epoch = now_epoch() + config.speed_test_interval
+    write_event(config, speed_event(result, now))
 
 
 def run_action_list(action_list: list[str]) -> None:

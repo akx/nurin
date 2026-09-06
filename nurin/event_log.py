@@ -8,6 +8,7 @@ from typing import Any
 from nurin.__about__ import __version__
 from nurin.models.config import Config
 from nurin.models.outage import Outage
+from nurin.models.result import SpeedResult
 from nurin.models.target import Target
 
 log = logging.getLogger(__name__)
@@ -18,6 +19,7 @@ log = logging.getLogger(__name__)
 #   {"type": "down",  ...}  connectivity lost, timestamped at the first failed check
 #   {"type": "up",    ...}  connectivity back; a self-contained record of the outage
 #   {"type": "start"/"stop"}  monitor lifecycle, so coverage gaps are derivable
+#   {"type": "speed", ...}  one download-speed sample (only if speed testing is on)
 #
 # `gap` events are not written here: only an outside observer comparing a "stop"
 # (or a truncated log) with the next "start" can tell how long we were away.
@@ -90,6 +92,27 @@ def stop_event(epoch: float, reason: str) -> dict[str, Any]:
         "type": "stop",
         **stamp(epoch),
         "reason": reason,
+    }
+
+
+def speed_event(result: SpeedResult, epoch: float) -> dict[str, Any]:
+    """
+    One download-speed sample, timestamped at the moment the download started.
+    """
+    return {
+        "type": "speed",
+        **stamp(epoch),
+        "url": result.url,
+        "success": result.success,
+        "bytes": result.bytes,
+        "duration_s": round(result.duration, 3),
+        "ttfb_s": (round(result.ttfb, 3) if result.ttfb is not None else None),
+        "bytes_per_second": round(result.bytes_per_second, 1),
+        "mbit_per_second": round(result.mbit_per_second, 3),
+        # A sample cut short at the byte/time cap measures throughput; a whole
+        # small file mostly measures latency, so the two are worth telling apart.
+        "truncated": result.truncated,
+        "error": result.error,
     }
 
 
